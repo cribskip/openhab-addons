@@ -38,6 +38,7 @@ public class SqueezeBoxBindingConstants {
     public static final String CHANNEL_POWER = "power";
     public static final String CHANNEL_MUTE = "mute";
     public static final String CHANNEL_VOLUME = "volume";
+    public static final String CHANNEL_BALANCE = "balance";
     public static final String CHANNEL_STOP = "stop";
     public static final String CHANNEL_PLAY_PAUSE = "playPause";
     public static final String CHANNEL_NEXT = "next";
