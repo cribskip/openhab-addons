@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="xmcamera"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<!--XM IP Camera -->
+	<thing-type id="xmipcamera">
+
+		<label>XMCamera Binding Thing</label>
+		<description>Xiongmai XM IP Camera</description>
+
+		<channels>
+			<channel id="snapshot" typeId="snapshot-channel"/>
+			<channel id="playsound" typeId="playsound-channel"/>
+			<channel id="play" typeId="play-channel"/>
+		</channels>
+
+		<config-description>
+			<parameter name="ip" type="text" required="true">
+				<context>network-address</context>
+				<label>IP</label>
+				<description>IP address of the device</description>
+			</parameter>
+			<parameter name="user" type="text" required="true">
+                <context>user</context>
+                <label>User</label>
+                <description>Username to access the device</description>
+            </parameter>
+			<parameter name="password" type="text" required="false">
+				<context>password</context>
+				<label>Password</label>
+				<description>Password to access the device</description>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<channel-type id="snapshot-channel">
+		<item-type>Image</item-type>
+		<label>Snapshot</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
+		<description>Contains current snapshot of the video stream</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="playsound-channel">
+        <item-type>Text</item-type>
+        <label>Playsound</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
+        <description>Filename of the soundfile to play</description>
+        <state readOnly="false"></state>
+    </channel-type>
+    <channel-type id="play-channel">
+        <item-type>Switch</item-type>
+        <label>Play</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
+        <description>Filename of the soundfile to play</description>
+        <state readOnly="false"></state>
+    </channel-type>
+
+</thing:thing-descriptions>
