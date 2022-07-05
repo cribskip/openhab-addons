@@ -247,6 +247,8 @@ public class MiIoDiscovery extends AbstractDiscoveryService {
         ThingTypeUID thingType = MiIoDevices.getType(model).getThingType();
         if (id.startsWith("lumi.") || THING_TYPE_GATEWAY.equals(thingType) || THING_TYPE_LUMI.equals(thingType)) {
             uid = new ThingUID(thingType, Utils.getHexId(id).replace(".", "_"));
+        } else if {THING_TYPE_VACUUM.equals(thingType)) {
+            uid = new ThingUID(thingType, Utils.getHexId(id).replace(".", "_"));
         } else {
             uid = new ThingUID(THING_TYPE_MIIO, Utils.getHexId(id).replace(".", "_"));
         }
