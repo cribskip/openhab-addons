@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -18,6 +18,6 @@ package org.openhab.binding.mybmw.internal.dto.properties;
  * @author Bernd Weymann - Initial contribution
  */
 public class Coordinates {
-    public double latitude;// ": 50.556049,
-    public double longitude;// ": 8.495669
+    public double latitude;
+    public double longitude;
 }

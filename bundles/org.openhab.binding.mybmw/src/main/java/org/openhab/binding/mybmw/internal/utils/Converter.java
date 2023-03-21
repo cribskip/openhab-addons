@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -238,10 +238,10 @@ public class Converter {
         }
         if (v.properties.vehicleLocation == null) {
             v.properties.vehicleLocation = new Location();
-            v.properties.vehicleLocation.heading = -1;
+            v.properties.vehicleLocation.heading = Constants.INT_UNDEF;
             v.properties.vehicleLocation.coordinates = new Coordinates();
-            v.properties.vehicleLocation.coordinates.latitude = -1.234;
-            v.properties.vehicleLocation.coordinates.longitude = -9.876;
+            v.properties.vehicleLocation.coordinates.latitude = Constants.INT_UNDEF;
+            v.properties.vehicleLocation.coordinates.longitude = Constants.INT_UNDEF;
             v.properties.vehicleLocation.address = new Address();
             v.properties.vehicleLocation.address.formatted = Constants.UNDEF;
         }

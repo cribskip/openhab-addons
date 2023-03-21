@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -114,6 +114,7 @@ public class MyBMWConstants {
     public static final String GPS = "gps";
     public static final String HEADING = "heading";
     public static final String ADDRESS = "address";
+    public static final String HOME_DISTANCE = "home-distance";
 
     // Status
     public static final String DOORS = "doors";

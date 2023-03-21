@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -60,9 +60,5 @@ public abstract class Event extends NAObject {
     public Optional<EventSubType> getSubTypeDescription() {
         return Stream.of(EventSubType.values()).filter(v -> v.types.contains(getEventType()) && v.subType == subType)
                 .findFirst();
-    }
-
-    public void setEventType(EventType type) {
-        this.type = type;
     }
 }

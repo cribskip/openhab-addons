@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -151,12 +151,15 @@ public class GroupePSAConnectApi {
 
         switch (statusCode) {
             case HttpStatus.NOT_FOUND_404:
-                ErrorObject error = gson.fromJson(response.getContentAsString(), ErrorObject.class);
-                String message = (error != null) ? error.getMessage() : null;
-                if (message == null) {
-                    message = "Unknown";
+                ErrorObject error = null;
+                try {
+                    error = gson.fromJson(response.getContentAsString(), ErrorObject.class);
+                } catch (JsonSyntaxException e) {
+                    throw new GroupePSACommunicationException("Error in received JSON: " + getRootCause(e).getMessage(),
+                            e);
                 }
-                throw new GroupePSACommunicationException(statusCode, message);
+                String message = (error == null) ? null : error.getMessage();
+                throw new GroupePSACommunicationException(statusCode, message == null ? "Unknown" : message);
 
             case HttpStatus.FORBIDDEN_403:
             case HttpStatus.UNAUTHORIZED_401:

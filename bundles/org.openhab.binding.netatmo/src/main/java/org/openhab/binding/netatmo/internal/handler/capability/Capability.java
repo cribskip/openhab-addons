@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -32,6 +32,7 @@ import org.openhab.binding.netatmo.internal.api.dto.NAHomeStatus.HomeStatus;
 import org.openhab.binding.netatmo.internal.api.dto.NAMain;
 import org.openhab.binding.netatmo.internal.api.dto.NAObject;
 import org.openhab.binding.netatmo.internal.api.dto.NAThing;
+import org.openhab.binding.netatmo.internal.api.dto.WebhookEvent;
 import org.openhab.binding.netatmo.internal.handler.CommonInterface;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.binding.ThingHandlerService;
@@ -73,6 +74,9 @@ public class Capability {
         }
         if (newData instanceof Event) {
             updateEvent((Event) newData);
+        }
+        if (newData instanceof WebhookEvent) {
+            updateWebhookEvent((WebhookEvent) newData);
         }
         if (newData instanceof HomeEvent) {
             updateHomeEvent((HomeEvent) newData);
@@ -134,6 +138,10 @@ public class Capability {
     }
 
     protected void updateEvent(Event newData) {
+        // do nothing by default, can be overridden by subclasses
+    }
+
+    protected void updateWebhookEvent(WebhookEvent newData) {
         // do nothing by default, can be overridden by subclasses
     }
 

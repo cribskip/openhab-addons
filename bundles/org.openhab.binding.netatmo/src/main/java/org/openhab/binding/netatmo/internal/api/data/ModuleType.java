@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -18,19 +18,20 @@ import static org.openhab.binding.netatmo.internal.api.data.NetatmoConstants.*;
 import java.net.URI;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.netatmo.internal.api.data.NetatmoConstants.FeatureArea;
 import org.openhab.binding.netatmo.internal.api.data.NetatmoConstants.MeasureClass;
 import org.openhab.binding.netatmo.internal.handler.capability.AirCareCapability;
+import org.openhab.binding.netatmo.internal.handler.capability.AlarmEventCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.CameraCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.Capability;
 import org.openhab.binding.netatmo.internal.handler.capability.ChannelHelperCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.DeviceCapability;
-import org.openhab.binding.netatmo.internal.handler.capability.EventCapability;
+import org.openhab.binding.netatmo.internal.handler.capability.DoorbellCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.HomeCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.MeasureCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.PersonCapability;
@@ -38,7 +39,9 @@ import org.openhab.binding.netatmo.internal.handler.capability.PresenceCapabilit
 import org.openhab.binding.netatmo.internal.handler.capability.RoomCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.WeatherCapability;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.AirQualityChannelHelper;
+import org.openhab.binding.netatmo.internal.handler.channelhelper.ApiBridgeChannelHelper;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.CameraChannelHelper;
+import org.openhab.binding.netatmo.internal.handler.channelhelper.DoorTagChannelHelper;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.EnergyChannelHelper;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.EventDoorbellChannelHelper;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.EventPersonChannelHelper;
@@ -51,45 +54,45 @@ import org.openhab.binding.netatmo.internal.handler.channelhelper.SecurityChanne
 import org.openhab.binding.netatmo.internal.handler.channelhelper.SetpointChannelHelper;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.SirenChannelHelper;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.Therm1ChannelHelper;
-import org.openhab.binding.netatmo.internal.handler.channelhelper.TimestampChannelHelper;
 import org.openhab.binding.netatmo.internal.handler.channelhelper.WindChannelHelper;
 import org.openhab.core.thing.ThingTypeUID;
 
 /**
- * This enum all handled Netatmo modules and devices along with their capabilities
+ * This enum describes all Netatmo modules and devices along with their capabilities.
  *
  * @author Gaël L'hopital - Initial contribution
  */
 @NonNullByDefault
 public enum ModuleType {
     UNKNOWN(FeatureArea.NONE, "", null, Set.of()),
-    ACCOUNT(FeatureArea.NONE, "", null, Set.of()),
+
+    ACCOUNT(FeatureArea.NONE, "", null, Set.of(), new ChannelGroup(ApiBridgeChannelHelper.class, GROUP_MONITORING)),
 
     HOME(FeatureArea.NONE, "NAHome", ACCOUNT,
-            Set.of(DeviceCapability.class, EventCapability.class, HomeCapability.class, ChannelHelperCapability.class),
+            Set.of(DeviceCapability.class, HomeCapability.class, ChannelHelperCapability.class),
             new ChannelGroup(SecurityChannelHelper.class, GROUP_SECURITY),
             new ChannelGroup(EnergyChannelHelper.class, GROUP_ENERGY)),
 
-    PERSON(FeatureArea.SECURITY, "NAPerson", HOME,
-            Set.of(EventCapability.class, PersonCapability.class, ChannelHelperCapability.class),
+    PERSON(FeatureArea.SECURITY, "NAPerson", HOME, Set.of(PersonCapability.class, ChannelHelperCapability.class),
             new ChannelGroup(PersonChannelHelper.class, GROUP_PERSON),
             new ChannelGroup(EventPersonChannelHelper.class, GROUP_PERSON_LAST_EVENT)),
 
-    WELCOME(FeatureArea.SECURITY, "NACamera", HOME,
-            Set.of(EventCapability.class, CameraCapability.class, ChannelHelperCapability.class), ChannelGroup.SIGNAL,
-            ChannelGroup.EVENT, new ChannelGroup(CameraChannelHelper.class, GROUP_CAM_STATUS, GROUP_CAM_LIVE)),
+    WELCOME(FeatureArea.SECURITY, "NACamera", HOME, Set.of(CameraCapability.class, ChannelHelperCapability.class),
+            ChannelGroup.SIGNAL, ChannelGroup.EVENT,
+            new ChannelGroup(CameraChannelHelper.class, GROUP_CAM_STATUS, GROUP_CAM_LIVE)),
+
+    TAG(FeatureArea.SECURITY, "NACamDoorTag", WELCOME, Set.of(ChannelHelperCapability.class), ChannelGroup.SIGNAL,
+            ChannelGroup.BATTERY, ChannelGroup.TIMESTAMP, new ChannelGroup(DoorTagChannelHelper.class, GROUP_TAG)),
 
     SIREN(FeatureArea.SECURITY, "NIS", WELCOME, Set.of(ChannelHelperCapability.class), ChannelGroup.SIGNAL,
-            ChannelGroup.BATTERY, new ChannelGroup(TimestampChannelHelper.class, GROUP_TIMESTAMP),
-            new ChannelGroup(SirenChannelHelper.class, GROUP_SIREN)),
+            ChannelGroup.BATTERY, ChannelGroup.TIMESTAMP, new ChannelGroup(SirenChannelHelper.class, GROUP_SIREN)),
 
-    PRESENCE(FeatureArea.SECURITY, "NOC", HOME,
-            Set.of(EventCapability.class, PresenceCapability.class, ChannelHelperCapability.class), ChannelGroup.SIGNAL,
-            ChannelGroup.EVENT,
+    PRESENCE(FeatureArea.SECURITY, "NOC", HOME, Set.of(PresenceCapability.class, ChannelHelperCapability.class),
+            ChannelGroup.SIGNAL, ChannelGroup.EVENT,
             new ChannelGroup(PresenceChannelHelper.class, GROUP_CAM_STATUS, GROUP_CAM_LIVE, GROUP_PRESENCE)),
 
-    DOORBELL(FeatureArea.SECURITY, "NDB", HOME,
-            Set.of(EventCapability.class, CameraCapability.class, ChannelHelperCapability.class), ChannelGroup.SIGNAL,
+    DOORBELL(FeatureArea.SECURITY, "NDB", HOME, Set.of(DoorbellCapability.class, ChannelHelperCapability.class),
+            ChannelGroup.SIGNAL,
             new ChannelGroup(CameraChannelHelper.class, GROUP_DOORBELL_STATUS, GROUP_DOORBELL_LIVE),
             new ChannelGroup(EventDoorbellChannelHelper.class, GROUP_DOORBELL_LAST_EVENT, GROUP_DOORBELL_SUB_EVENT)),
 
@@ -135,11 +138,17 @@ public enum ModuleType {
 
     ROOM(FeatureArea.ENERGY, "NARoom", HOME, Set.of(RoomCapability.class, ChannelHelperCapability.class),
             new ChannelGroup(RoomChannelHelper.class, GROUP_TYPE_ROOM_PROPERTIES, GROUP_TYPE_ROOM_TEMPERATURE),
-            new ChannelGroup(SetpointChannelHelper.class, GROUP_SETPOINT));
+            new ChannelGroup(SetpointChannelHelper.class, GROUP_SETPOINT)),
+
+    SMOKE_DETECTOR(FeatureArea.SECURITY, "NSD", HOME, Set.of(AlarmEventCapability.class, ChannelHelperCapability.class),
+            ChannelGroup.SIGNAL, ChannelGroup.TIMESTAMP, ChannelGroup.ALARM_LAST_EVENT),
+
+    CO_DETECTOR(FeatureArea.SECURITY, "NCO", HOME, Set.of(AlarmEventCapability.class, ChannelHelperCapability.class),
+            ChannelGroup.SIGNAL, ChannelGroup.TIMESTAMP, ChannelGroup.ALARM_LAST_EVENT);
 
     public static final EnumSet<ModuleType> AS_SET = EnumSet.allOf(ModuleType.class);
 
-    private final @Nullable ModuleType bridgeType;
+    private final Optional<ModuleType> bridgeType;
     public final Set<ChannelGroup> channelGroups;
     public final Set<Class<? extends Capability>> capabilities;
     public final ThingTypeUID thingTypeUID;
@@ -148,7 +157,7 @@ public enum ModuleType {
 
     ModuleType(FeatureArea feature, String apiName, @Nullable ModuleType bridge,
             Set<Class<? extends Capability>> capabilities, ChannelGroup... channelGroups) {
-        this.bridgeType = bridge;
+        this.bridgeType = Optional.ofNullable(bridge);
         this.feature = feature;
         this.capabilities = capabilities;
         this.apiName = apiName;
@@ -160,21 +169,16 @@ public enum ModuleType {
         return !channelGroups.contains(ChannelGroup.SIGNAL);
     }
 
-    public boolean isABridge() {
-        for (ModuleType mt : ModuleType.values()) {
-            if (this.equals(mt.bridgeType)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isABridge() { // I am a bridge if any module references me as being so
+        return AS_SET.stream().anyMatch(mt -> this.equals(mt.getBridge()));
     }
 
     public List<String> getExtensions() {
-        return channelGroups.stream().map(cg -> cg.extensions).flatMap(Set::stream).collect(Collectors.toList());
+        return channelGroups.stream().map(cg -> cg.extensions).flatMap(Set::stream).toList();
     }
 
-    public Set<String> getGroupTypes() {
-        return channelGroups.stream().map(cg -> cg.groupTypes).flatMap(Set::stream).collect(Collectors.toSet());
+    public List<String> getGroupTypes() {
+        return channelGroups.stream().map(cg -> cg.groupTypes).flatMap(Set::stream).toList();
     }
 
     public int[] getSignalLevels() {
@@ -184,29 +188,29 @@ public enum ModuleType {
                     : WIFI_SIGNAL_LEVELS;
         }
         throw new IllegalArgumentException(
-                "This should not be called for module type : " + name() + ", please file a bug report.");
+                "getSignalLevels should not be called for module type : '%s', please file a bug report."
+                        .formatted(name()));
     }
 
     public ModuleType getBridge() {
-        ModuleType bridge = bridgeType;
-        return bridge != null ? bridge : ModuleType.UNKNOWN;
+        return bridgeType.orElse(UNKNOWN);
     }
 
     public URI getConfigDescription() {
         return URI.create(BINDING_ID + ":"
                 + (equals(ACCOUNT) ? "api_bridge"
                         : equals(HOME) ? "home"
-                                : (isLogical() ? "virtual"
-                                        : ModuleType.UNKNOWN.equals(getBridge()) ? "configurable" : "device")));
+                                : (isLogical() ? "virtual" : UNKNOWN.equals(getBridge()) ? "configurable" : "device")));
+    }
+
+    public int getDepth() {
+        ModuleType parent = getBridge();
+        return parent == UNKNOWN ? 1 : parent.getDepth() + 1;
     }
 
     public static ModuleType from(ThingTypeUID thingTypeUID) {
-        return ModuleType.AS_SET.stream().filter(mt -> mt.thingTypeUID.equals(thingTypeUID)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException());
-    }
-
-    public static ModuleType from(String apiName) {
-        return ModuleType.AS_SET.stream().filter(mt -> apiName.equals(mt.apiName)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException());
+        return AS_SET.stream().filter(mt -> mt.thingTypeUID.equals(thingTypeUID)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No known ModuleType matched '%s'".formatted(thingTypeUID.toString())));
     }
 }

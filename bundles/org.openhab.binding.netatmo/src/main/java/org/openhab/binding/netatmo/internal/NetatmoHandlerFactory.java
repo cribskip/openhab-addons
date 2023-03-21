@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
+import org.openhab.binding.netatmo.internal.api.data.ChannelGroup;
 import org.openhab.binding.netatmo.internal.api.data.ModuleType;
 import org.openhab.binding.netatmo.internal.config.BindingConfiguration;
 import org.openhab.binding.netatmo.internal.deserialization.NADeserializer;
@@ -27,11 +28,12 @@ import org.openhab.binding.netatmo.internal.handler.CommonInterface;
 import org.openhab.binding.netatmo.internal.handler.DeviceHandler;
 import org.openhab.binding.netatmo.internal.handler.ModuleHandler;
 import org.openhab.binding.netatmo.internal.handler.capability.AirCareCapability;
+import org.openhab.binding.netatmo.internal.handler.capability.AlarmEventCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.CameraCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.Capability;
 import org.openhab.binding.netatmo.internal.handler.capability.ChannelHelperCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.DeviceCapability;
-import org.openhab.binding.netatmo.internal.handler.capability.EventCapability;
+import org.openhab.binding.netatmo.internal.handler.capability.DoorbellCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.HomeCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.MeasureCapability;
 import org.openhab.binding.netatmo.internal.handler.capability.PersonCapability;
@@ -112,8 +114,8 @@ public class NetatmoHandlerFactory extends BaseThingHandlerFactory {
         CommonInterface handler = moduleType.isABridge() ? new DeviceHandler((Bridge) thing) : new ModuleHandler(thing);
 
         List<ChannelHelper> helpers = new ArrayList<>();
-        moduleType.channelGroups
-                .forEach(channelGroup -> channelGroup.getHelperInstance().ifPresent(helper -> helpers.add(helper)));
+
+        helpers.addAll(moduleType.channelGroups.stream().map(ChannelGroup::getHelperInstance).toList());
 
         moduleType.capabilities.forEach(capability -> {
             Capability newCap = null;
@@ -121,18 +123,20 @@ public class NetatmoHandlerFactory extends BaseThingHandlerFactory {
                 newCap = new DeviceCapability(handler);
             } else if (capability == AirCareCapability.class) {
                 newCap = new AirCareCapability(handler);
-            } else if (capability == EventCapability.class) {
-                newCap = new EventCapability(handler);
             } else if (capability == HomeCapability.class) {
                 newCap = new HomeCapability(handler, stateDescriptionProvider);
             } else if (capability == WeatherCapability.class) {
                 newCap = new WeatherCapability(handler);
             } else if (capability == RoomCapability.class) {
                 newCap = new RoomCapability(handler);
+            } else if (capability == DoorbellCapability.class) {
+                newCap = new DoorbellCapability(handler, stateDescriptionProvider, helpers);
             } else if (capability == PersonCapability.class) {
                 newCap = new PersonCapability(handler, stateDescriptionProvider, helpers);
             } else if (capability == CameraCapability.class) {
                 newCap = new CameraCapability(handler, stateDescriptionProvider, helpers);
+            } else if (capability == AlarmEventCapability.class) {
+                newCap = new AlarmEventCapability(handler, stateDescriptionProvider, helpers);
             } else if (capability == PresenceCapability.class) {
                 newCap = new PresenceCapability(handler, stateDescriptionProvider, helpers);
             } else if (capability == MeasureCapability.class) {

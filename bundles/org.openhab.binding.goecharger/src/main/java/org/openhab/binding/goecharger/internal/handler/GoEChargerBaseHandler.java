@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -87,21 +87,6 @@ public abstract class GoEChargerBaseHandler extends BaseThingHandler {
                     return UnDefType.UNDEF;
                 }
                 return new StringType(goeResponseBase.firmware);
-            case VOLTAGE_L1:
-                if (goeResponseBase.energy == null) {
-                    return UnDefType.UNDEF;
-                }
-                return new QuantityType<>(goeResponseBase.energy[0], Units.VOLT);
-            case VOLTAGE_L2:
-                if (goeResponseBase.energy == null) {
-                    return UnDefType.UNDEF;
-                }
-                return new QuantityType<>(goeResponseBase.energy[1], Units.VOLT);
-            case VOLTAGE_L3:
-                if (goeResponseBase.energy == null) {
-                    return UnDefType.UNDEF;
-                }
-                return new QuantityType<>(goeResponseBase.energy[2], Units.VOLT);
         }
         return UnDefType.UNDEF;
     }
